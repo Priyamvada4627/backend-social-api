@@ -1,12 +1,15 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from .config import settings
-
+from urllib.parse import quote_plus
 SQLALCHEMY_DATABASE_URL = (
-    f"postgresql://{settings.database_username}:{settings.database_password}"
-    f"@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
+    f"postgresql://{quote_plus(settings.database_username)}:"
+    f"{quote_plus(settings.database_password)}"
+    f"@{settings.database_hostname}:"
+    f"{settings.database_port}/"
+    f"{settings.database_name}"
+    f"?sslmode=require"
 )
-
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     pool_size=10,
