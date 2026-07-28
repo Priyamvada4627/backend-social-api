@@ -1,8 +1,12 @@
 const form = document.getElementById("registerForm");
+const formError = document.getElementById("formError");
 
 form.addEventListener("submit", async (e) => {
 
     e.preventDefault();
+
+    formError.style.display = "none";
+    formError.textContent = "";
 
     try {
 
@@ -23,7 +27,8 @@ form.addEventListener("submit", async (e) => {
 
     } catch (err) {
 
-        alert(err.message);
+        formError.textContent = err.message;
+        formError.style.display = "block";
 
     }
 

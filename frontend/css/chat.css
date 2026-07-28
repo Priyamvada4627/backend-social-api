@@ -103,22 +103,6 @@ body{
 
 }
 
-.sent{
-
-    background:#2563eb;
-
-    color:white;
-
-    margin-left:auto;
-
-}
-
-.received{
-
-    background:white;
-
-}
-
 .typing-status{
 
     height:30px;
@@ -164,18 +148,6 @@ body{
     padding:12px;
     margin:10px;
     border-radius:12px;
-}
-
-.sent{
-    margin-left:auto;
-    background:#2563eb;
-    color:white;
-}
-
-.received{
-    margin-right:auto;
-    background:#444;
-    color:white;
 }
 
 .chat-image{
@@ -250,6 +222,8 @@ body{
 
     margin-left:auto;
     background:#DCF8C6;
+    color:#111;
+    border:1px solid #cdeab5;
 
 }
 
@@ -257,6 +231,8 @@ body{
 
     margin-right:auto;
     background:white;
+    color:#111;
+    border:1px solid #e2e2e2;
 
 }
 

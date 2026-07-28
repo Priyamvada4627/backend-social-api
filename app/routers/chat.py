@@ -103,13 +103,12 @@ async def websocket_endpoint(
                         db=db,
                     )
 
-                    await manager.send_personal_message(
-                        message.sender_id,
-                        {
-                            "type": "seen",
-                            "message_id": message.id,
-                        },
-                    )
+                    seen_payload = {
+                        "type": "seen",
+                        "message_id": message.id,
+                    }
+
+                    sender_id = message.sender_id
 
                 except HTTPException as e:
 
@@ -120,8 +119,15 @@ async def websocket_endpoint(
                         }
                     )
 
+                    continue
+
                 finally:
                     db.close()
+
+                await manager.send_personal_message(
+                    sender_id,
+                    seen_payload,
+                )
 
                 continue
 
@@ -156,6 +162,27 @@ async def websocket_endpoint(
                     db=db,
                 )
 
+                # IMPORTANT: build the payload BEFORE closing the session.
+                # message_service.create_message() triggers a second commit
+                # internally (via notification_service.create_notification),
+                # which expires new_message's attributes. If we wait until
+                # after db.close() to read them, SQLAlchemy raises a
+                # DetachedInstanceError trying to lazily reload from a
+                # closed session — an exception that isn't an HTTPException,
+                # so it was silently killing this loop iteration before the
+                # broadcast ever ran.
+                payload = {
+                    "type": "message",
+                    "id": new_message.id,
+                    "sender_id": new_message.sender_id,
+                    "receiver_id": new_message.receiver_id,
+                    "content": new_message.content,
+                    "image_url": new_message.image_url,
+                    "audio_url": new_message.audio_url,
+                    "is_seen": new_message.is_seen,
+                    "created_at": str(new_message.created_at),
+                }
+
             except HTTPException as e:
 
                 await websocket.send_json(
@@ -169,18 +196,6 @@ async def websocket_endpoint(
 
             finally:
                 db.close()
-
-            payload = {
-                "type": "message",
-                "id": new_message.id,
-                "sender_id": new_message.sender_id,
-                "receiver_id": new_message.receiver_id,
-                "content": new_message.content,
-                "image_url": new_message.image_url,
-                "audio_url": new_message.audio_url,
-                "is_seen": new_message.is_seen,
-                "created_at": str(new_message.created_at),
-            }
 
             await manager.send_personal_message(user_id, payload)
 
